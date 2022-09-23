@@ -1,0 +1,15 @@
+[
+  {
+    "operation": "shift",
+    "spec": {
+      "data": "$"
+    }
+  },
+  {
+    "operation": "shift",
+    "spec": {
+      "id": "data[*].id",
+      "title": "data[*].title"
+    }
+  }
+]
