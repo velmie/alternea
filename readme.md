@@ -55,6 +55,14 @@ Reads the named file and returns the contents.
 
 Parses the given JSON string and, if it is valid, returns the value it represents.
 
+#### format("%s %d", "example", 25, ...)
+
+Produces a string representation of zero or more values using format string similar to the "printf" function in C.
+
+Follow [the link](https://pkg.go.dev/github.com/zclconf/go-cty/cty/function/stdlib#Format) for more details.
+
+Alias name: **printf**
+
 ### Root Block
 
 The root block is an area of the configuration file that is not nested within other blocks.

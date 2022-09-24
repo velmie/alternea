@@ -8,6 +8,7 @@ import (
 	"github.com/hashicorp/hcl/v2"
 	"github.com/zclconf/go-cty/cty"
 	"github.com/zclconf/go-cty/cty/function"
+	"github.com/zclconf/go-cty/cty/function/stdlib"
 	ctyjson "github.com/zclconf/go-cty/cty/json"
 )
 
@@ -17,6 +18,8 @@ var evalContext = &hcl.EvalContext{
 		"env":           env,
 		"unmarshalJSON": unmarshalJSON,
 		"fromFile":      fromFile,
+		"format":        stdlib.FormatFunc,
+		"printf":        stdlib.FormatFunc,
 	},
 }
 
