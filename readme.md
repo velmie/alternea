@@ -239,6 +239,9 @@ server "main" {
       // required by the "csv" transformer
       tablifier = {
         name = "json" // the only available tablifier for now is json
+        // columns - optionally specifies which columns to include in the result
+        // columns will be selected in the order in which they are specified
+        columns = ["id", "title", "body"] // optional, default all
 
         // before passing the data to the tablifier, they can be preprocessed
         // by optionally defining "remapper"
@@ -275,7 +278,7 @@ remapper = {
     "operation": "shift",
     "spec": {
       "id": "data[*].id",
-      "numMp": "data[*].title"
+      "title": "data[*].title"
     }
   }
 ]

@@ -33,14 +33,18 @@ func JSONTablifierFactory(
 		var err error
 		remapperConfig, exist := extractConfigIfSet(RemapperReferenceName, config)
 		remapper := defaultRemapper
-		if exist {
-			const entryName = TablifierReferenceName + "." + TablifierJSON
+		const entryName = TablifierReferenceName + "." + TablifierJSON
 
+		if exist {
 			remapper, err = remapperFactory.Create(remapperConfig.GetString("name"), remapperConfig)
 			if err != nil {
 				return nil, errors.Wrapf(err, "%s: cannot create remapper", entryName)
 			}
 		}
-		return manipulation.NewJSONTablifier(remapper, GetLogger()), nil
+		tablifierConfig := &manipulation.JSONTablifierConfig{}
+		if err = decode(config, tablifierConfig); err != nil {
+			return nil, errors.Wrapf(err, "%s: cannot decode configuration", entryName)
+		}
+		return manipulation.NewJSONTablifier(remapper, GetLogger(), tablifierConfig), nil
 	})
 }

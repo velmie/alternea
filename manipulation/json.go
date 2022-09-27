@@ -11,6 +11,12 @@ import (
 	"github.com/velmie/alternea/dframe"
 )
 
+type JSONTablifierConfig struct {
+	// Columns determines which columns should be added to the result
+	// columns will be selected in the order in which they are specified
+	Columns []string
+}
+
 // JSONTablifier create table from input json bytes using the Remapper
 // which must end up with json object where all properties are arrays
 // that represent columns
@@ -18,10 +24,15 @@ import (
 type JSONTablifier struct {
 	columnsRemapper Remapper
 	logger          app.Logger
+	config          *JSONTablifierConfig
 }
 
-func NewJSONTablifier(columnsRemapper Remapper, logger app.Logger) *JSONTablifier {
-	return &JSONTablifier{columnsRemapper, logger}
+func NewJSONTablifier(
+	columnsRemapper Remapper,
+	logger app.Logger,
+	config *JSONTablifierConfig,
+) *JSONTablifier {
+	return &JSONTablifier{columnsRemapper, logger, config}
 }
 
 func (t *JSONTablifier) Table(in []byte) (*dframe.Table, error) {
@@ -51,29 +62,43 @@ func (t *JSONTablifier) Table(in []byte) (*dframe.Table, error) {
 	}
 
 	table, _ := dframe.NewTable()
-	result.ForEach(func(key, value gjson.Result) bool {
+	config := t.config
+	addColumn := func(key string, value gjson.Result) error {
 		if !value.IsArray() {
 			typeName := value.Type.String()
 			if value.IsObject() {
 				typeName = "object"
 			}
-			err = errors.Wrapf(
+			return errors.Wrapf(
 				ErrUnsupportedDataType,
 				"JSONTablifier: remapped object properties must be arrays, but '%s' is '%s'",
 				key,
 				typeName,
 			)
-			return false
 		}
-		column := dframe.NewColumn(key.String(), dframe.Nullable)
+		column := dframe.NewColumn(key, dframe.Nullable)
 		column.Add(value.Value().([]any)...)
 		if err = table.Append(column); err != nil {
-			err = errors.Wrap(err, "JSONTablifier: cannot append column")
-			return false
+			return errors.Wrap(err, "JSONTablifier: cannot append column")
 		}
+		return nil
+	}
 
-		return true
-	})
+	if config != nil && len(config.Columns) > 0 {
+		for _, key := range config.Columns {
+			if err = addColumn(key, result.Get(key)); err != nil {
+				break
+			}
+		}
+	} else {
+		result.ForEach(func(key, value gjson.Result) bool {
+			if err = addColumn(key.String(), value); err != nil {
+				return false
+			}
+			return true
+		})
+	}
+
 	if err != nil {
 		return nil, err
 	}
