@@ -182,6 +182,10 @@ server "main" {
 }
 ```
 
+#### Custom HTML template functions
+
+* `fdate` - parses the value into `time.Time` and returns a formatted string. Usage: `{{fdate "inputFormat" "outputFormat" .yourValue}}`. Example: `{{fdate "2006-01-02T15:04:05Z07:00" "02/01/2006 15:04" .yourValue}}`
+
 ### Transformer CSV (belongs to the proxy_service block)
 
 Transforms data to CSV
