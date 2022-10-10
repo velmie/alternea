@@ -74,7 +74,7 @@ func PDFTransformer(remapperFactory Factory[manipulation.Remapper]) Factory[mani
 			if templateAttr == "" {
 				return nil, errRequiredConfiguration(entryName, "template")
 			}
-			htmlTemplate, err := template.New(TransformerPDF).Parse(templateAttr)
+			htmlTemplate, err := registerCustomFunctions(template.New(TransformerPDF)).Parse(templateAttr)
 			if err != nil {
 				return nil, errors.Wrapf(err, "%s: cannot parse template", entryName)
 			}
